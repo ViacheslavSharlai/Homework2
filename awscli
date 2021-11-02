@@ -1,0 +1,42 @@
+#Creating a VPC
+
+aws ec2 create-vpc --cidr-block 10.0.0.0/16
+VPC     10.0.0.0/16     dopt-0cff76c9be88ba316  default False   413391068907    pending vpc-0412d1362564cee35
+CIDRBLOCKASSOCIATIONSET vpc-cidr-assoc-09a84497455678637        10.0.0.0/16
+CIDRBLOCKSTATE  associated
+
+#Creating Subnets
+
+aws ec2 create-subnet --vpc-id vpc-0412d1362564cee35 --cidr-block 10.0.1.0/24
+SUBNET  False   us-east-2c      use2-az3        251     10.0.1.0/24     False   False   413391068907    available       arn:aws:ec2:us-east-2:413391068907:subnet/subnet-09e5b74f9d24b9bfb      subnet-09e5b74f9d24b9bfb        vpc-0412d1362564cee35
+
+aws ec2 create-subnet --vpc-id vpc-0412d1362564cee35 --cidr-block 10.0.2.0/24
+SUBNET  False   us-east-2c      use2-az3        251     10.0.2.0/24     False   False   413391068907    available       arn:aws:ec2:us-east-2:413391068907:subnet/subnet-03783a19062c36d43      subnet-03783a19062c36d43        vpc-0412d1362564cee35
+
+#Creating IGW
+
+aws ec2 create-internet-gateway
+INTERNETGATEWAY igw-07261e23f6ce73d35   413391068907
+aws ec2 attach-internet-gateway --vpc-id vpc-0412d1362564cee35 --internet-gateway-id igw-07261e23f6ce73d35
+
+#Creating Route Table
+
+aws ec2 create-route-table --vpc-id vpc-0412d1362564cee35
+ROUTETABLE      413391068907    rtb-0530bdcce5c8c40be   vpc-0412d1362564cee35
+ROUTES  10.0.0.0/16     local   CreateRouteTable        active
+
+aws ec2 create-route --route-table-id rtb-0530bdcce5c8c40be --destination-cidr-block 0.0.0.0/0 --gateway-id igw-07261e23f6ce73d35
+True
+
+#Associating Route Table and modifying subnet
+
+aws ec2 associate-route-table --subnet-id subnet-09e5b74f9d24b9bfb --route-table-id rtb-0530bdcce5c8c40be
+rtbassoc-0d0572443862cae6b
+ASSOCIATIONSTATE        associated
+
+aws ec2 associate-route-table --subnet-id subnet-03783a19062c36d43 --route-table-id rtb-0530bdcce5c8c40be
+rtbassoc-0442033c228b99a65
+ASSOCIATIONSTATE        associated
+
+
+
