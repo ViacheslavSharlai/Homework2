@@ -62,26 +62,59 @@ SECURITYGROUPRULES      0.0.0.0/0       80      sg-09a08de95ee9f6841    41339106
 #Run instance
 
 aws ec2 run-instances --image-id ami-00399ec92321828f5 --count 1 --instance-type t2.micro --key-name AWS-Keypair --security-group-ids sg-09a08de95ee9f6841 --subnet-id subnet-09e5b74f9d24b9bfb --user-data file://nginx.sh
-413391068907    r-0fc7ea6bcb0a15199
-INSTANCES       0       x86_64  49bf0919-0bb2-4465-aee2-b467e147c18d    False   True    xen     ami-00399ec92321828f5   i-0b5c36b803f236242     t2.micro        AWS-Keypair     2021-11-03T20:08:16+00:00
-       ip-10-0-1-15.us-east-2.compute.internal 10.0.1.15               /dev/sda1       ebs     True            subnet-09e5b74f9d24b9bfb        hvm     vpc-0412d1362564cee35
+413391068907    r-01221661566d69db1
+INSTANCES       0       x86_64  87f6cc99-073f-4e80-980c-8b4edac671ce    False   True    xen     ami-00399ec92321828f5   i-0fde620d40d924878     t2.micro        AWS-Keypair     2021-11-03T20:17:54+00:00
+       ip-10-0-1-101.us-east-2.compute.internal        10.0.1.101              /dev/sda1       ebs     True            subnet-09e5b74f9d24b9bfb        hvm     vpc-0412d1362564cee35
 CAPACITYRESERVATIONSPECIFICATION        open
 CPUOPTIONS      1       1
 ENCLAVEOPTIONS  False
 METADATAOPTIONS enabled disabled        1       optional        pending
 MONITORING      disabled
-NETWORKINTERFACES               interface       0a:25:72:0e:9a:1e       eni-00282134ffe5de19c   413391068907    10.0.1.15       True    in-use  subnet-09e5b74f9d24b9bfb        vpc-0412d1362564cee35
-ATTACHMENT      2021-11-03T20:08:16+00:00       eni-attach-0e49ce498a348ed65    True    0       0       attaching
+NETWORKINTERFACES               interface       0a:f8:08:c9:4d:f8       eni-088edfa47d1eeae0c   413391068907    10.0.1.101      True    in-use  subnet-09e5b74f9d24b9bfb        vpc-0412d1362564cee35
+ATTACHMENT      2021-11-03T20:17:54+00:00       eni-attach-0e3d5124cdaac8628    True    0       0       attaching
 GROUPS  sg-09a08de95ee9f6841    ssh
-PRIVATEIPADDRESSES      True    10.0.1.15
+PRIVATEIPADDRESSES      True    10.0.1.101
 PLACEMENT       us-east-2c              default
 SECURITYGROUPS  sg-09a08de95ee9f6841    ssh
 STATE   0       pending
 STATEREASON     pending pending
 
+nginx.sh
+!/bin/bash
+sudo apt update -y && sudo apt install -y nginx
+sudo systemctl start nginx
+
+
 #Creating S3
 aws s3api create-bucket --bucket my-bucket-vsharlai --region us-east-1
 /my-bucket-vsharlai
 
+#IAM user and role
 
+aws iam create-user --user-name test
+USER    arn:aws:iam::413391068907:user/test     2021-11-03T20:56:36+00:00       /       AIDAWAQAHD3V5HKPMHSH3   test
 
+nano test-policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*",
+                "s3-object-lambda:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+
+aws iam create-policy --policy-name tests3 --policy-document file://test-policy.json
+POLICY  arn:aws:iam::413391068907:policy/tests3 0       2021-11-03T21:03:54+00:00       v1      True    /       0       ANPAWAQAHD3VZCXGCIWPC   tests3  2021-11-03T21:03:54+00:00
+
+aws iam create-group --group-name s3
+GROUP   arn:aws:iam::413391068907:group/s3      2021-11-03T21:11:42+00:00       AGPAWAQAHD3V7L635XZMH   s3      /
+
+aws iam add-user-to-group --user-name test --group-name s3
+
+aws iam attach-user-policy --user-name test --policy-arn "arn:aws:iam::413391068907:policy/tests3"
