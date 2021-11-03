@@ -38,5 +38,26 @@ aws ec2 associate-route-table --subnet-id subnet-03783a19062c36d43 --route-table
 rtbassoc-0442033c228b99a65
 ASSOCIATIONSTATE        associated
 
+#aws ec2 modify-subnet-attribute --subnet-id <SubnetId> --map-public-ip-on-launch
+
+#Creating Key Pair and Security Group
+
+aws ec2 create-key-pair --key-name AWS-Keypair --query "KeyMaterial" --output text > "/Users/viacheslav.sharlai/Downloads/AWS_Keypair.pem"
+
+aws ec2 create-security-group --group-name ssh --description "ssh" --vpc-id vpc-0412d1362564cee35
+sg-09a08de95ee9f6841
+
+aws ec2 authorize-security-group-ingress --group-id sg-09a08de95ee9f6841 --protocol tcp --port 22 --cidr 0.0.0.0/0
+True
+SECURITYGROUPRULES      0.0.0.0/0       22      sg-09a08de95ee9f6841    413391068907    tcp     False   sgr-07834b3d87370d6d5   22
+
+#Run instance
+aws ec2 run-instances --image-id ami-00399ec92321828f5 --count 1 --instance-type t2.micro --key-name AWS-Keypair --security-group-ids sg-09a08de95ee9f6841--subnet-id subnet-09e5b74f9d24b9bfb --vpc-id vpc-0412d1362564cee35
+
+
+#Creating S3
+aws s3api create-bucket --bucket my-bucket-vsharlai --region us-east-1
+/my-bucket-vsharlai
+
 
 
