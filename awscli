@@ -51,9 +51,33 @@ aws ec2 authorize-security-group-ingress --group-id sg-09a08de95ee9f6841 --proto
 True
 SECURITYGROUPRULES      0.0.0.0/0       22      sg-09a08de95ee9f6841    413391068907    tcp     False   sgr-07834b3d87370d6d5   22
 
-#Run instance
-aws ec2 run-instances --image-id ami-00399ec92321828f5 --count 1 --instance-type t2.micro --key-name AWS-Keypair --security-group-ids sg-09a08de95ee9f6841--subnet-id subnet-09e5b74f9d24b9bfb --vpc-id vpc-0412d1362564cee35
+aws ec2 authorize-security-group-ingress --group-id sg-09a08de95ee9f6841 --protocol tcp --port 443 --cidr 0.0.0.0/0
+True
+SECURITYGROUPRULES      0.0.0.0/0       443     sg-09a08de95ee9f6841    413391068907    tcp     False   sgr-06e888d0762a2c260   443
 
+aws ec2 authorize-security-group-ingress --group-id sg-09a08de95ee9f6841 --protocol tcp --port 80 --cidr 0.0.0.0/0
+True
+SECURITYGROUPRULES      0.0.0.0/0       80      sg-09a08de95ee9f6841    413391068907    tcp     False   sgr-0be1934788d01755f   80
+
+#Run instance
+
+aws ec2 run-instances --image-id ami-00399ec92321828f5 --count 1 --instance-type t2.micro --key-name AWS-Keypair --security-group-ids sg-09a08de95ee9f6841 --subnet-id subnet-09e5b74f9d24b9bfb --user-data file://nginx.sh
+413391068907    r-0fc7ea6bcb0a15199
+INSTANCES       0       x86_64  49bf0919-0bb2-4465-aee2-b467e147c18d    False   True    xen     ami-00399ec92321828f5   i-0b5c36b803f236242     t2.micro        AWS-Keypair     2021-11-03T20:08:16+00:00
+       ip-10-0-1-15.us-east-2.compute.internal 10.0.1.15               /dev/sda1       ebs     True            subnet-09e5b74f9d24b9bfb        hvm     vpc-0412d1362564cee35
+CAPACITYRESERVATIONSPECIFICATION        open
+CPUOPTIONS      1       1
+ENCLAVEOPTIONS  False
+METADATAOPTIONS enabled disabled        1       optional        pending
+MONITORING      disabled
+NETWORKINTERFACES               interface       0a:25:72:0e:9a:1e       eni-00282134ffe5de19c   413391068907    10.0.1.15       True    in-use  subnet-09e5b74f9d24b9bfb        vpc-0412d1362564cee35
+ATTACHMENT      2021-11-03T20:08:16+00:00       eni-attach-0e49ce498a348ed65    True    0       0       attaching
+GROUPS  sg-09a08de95ee9f6841    ssh
+PRIVATEIPADDRESSES      True    10.0.1.15
+PLACEMENT       us-east-2c              default
+SECURITYGROUPS  sg-09a08de95ee9f6841    ssh
+STATE   0       pending
+STATEREASON     pending pending
 
 #Creating S3
 aws s3api create-bucket --bucket my-bucket-vsharlai --region us-east-1
